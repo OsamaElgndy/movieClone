@@ -1,7 +1,7 @@
-import { useState } from "react";
+// import { useState } from "react";
 
 export default function List() {
-const [sortBy, setSortBy] = useState<number>(0);
+// const [sortBy, setSortBy] = useState<number>(0);
  return (
     <div className="ml-7 mt-12 flex  gap-2">
   
