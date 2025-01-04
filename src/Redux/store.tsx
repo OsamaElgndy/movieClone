@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
-import counterReducer from './counterSlice'
+import   listMovies from './moviesList'
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    
+    movies: listMovies
   },
 })
 

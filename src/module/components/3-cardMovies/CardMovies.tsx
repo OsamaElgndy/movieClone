@@ -1,39 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { Movie } from "../../../Redux/moviesList";
+import { useSelector } from "react-redux";
 
 export default function CardMovies() {
-
-
+  const moviesList = useSelector((state: { movies: Movie[] }) => state.movies);
+  const [movies, setMovies] = useState<Movie[]>(moviesList.movies);
+  console.log(movies , "movies");
   
-  const movies = [
-    {
-      title: "Inception",
-      year: 2010,
-      runtime: "148 min",
-      img: "https://m.media-amazon.com/images/I/91j8m9V9wlL._AC_SY679_.jpg", // Image URL for the movie
-      rating: "8.8",
-    },
-    {
-      title: "The Dark Knight",
-      year: 2008,
-      runtime: "152 min",
-      img: "https://m.media-amazon.com/images/I/51t6eowjiyL._AC_SY679_.jpg",
-      rating: "9.0",
-    },
-    {
-      title: "Interstellar",
-      year: 2014,
-      runtime: "169 min",
-      img: "https://m.media-amazon.com/images/I/81PqqzQkKlL._AC_SY679_.jpg",
-      rating: "8.6",
-    },
-    {
-      title: "The Matrix",
-      year: 1999,
-      runtime: "136 min",
-      img: "https://m.media-amazon.com/images/I/51EG732BV3L._AC_.jpg",
-      rating: "8.7",
-    },
-  ];
+  useEffect(() => {
+    console.log(moviesList, "moviesListeeeeeeeeeeeeeeee");
+    setMovies(moviesList.movies);
+  }, [moviesList]);
+  
+  console.log(moviesList.movies , "moviesList.movies");
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 10; // replace with the actual total number of pages
@@ -58,7 +37,7 @@ export default function CardMovies() {
           Movie List
         </h1>
         <div className="flex flex-wrap justify-center items-cta gap-7 sm:flex-1 lg:flex-2 xl:flex-3">
-          {movies.map((movie, index) => (
+          {movies?.map((movie, index) => (
             <div
               key={index}
               className="w-[390px] h-[166px] bg-transparent border  border-solid border-[#E0D9D9] rounded-lg shadow-lg overflow-hidden transition-transform transform hover:bg-[#E0D9D9] hover:scale-105 hover:cursor-pointer"
@@ -66,19 +45,19 @@ export default function CardMovies() {
               <div className="flex  ">
                 <div className="flex flex-col justify-center p-4 w-2/3">
                   <h2 className="text-xl font-semibold text-white">
-                    {movie.title}
+                    {movie.Title}
                   </h2>
-                  <p className="text-sm text-gray-300">{movie.year}</p>
-                  <p className="text-sm text-gray-300">{movie.runtime}</p>
+                  <p className="text-sm text-gray-300">{movie.Year}</p>
+                  <p className="text-sm text-gray-300">{movie.imdbID}</p>
                   <div className="flex items-center mt-2">
                     <span className="text-lg font-bold text-yellow-500">
-                      ⭐ {movie.rating}
+                      ⭐ {movie.Type}
                     </span>
                   </div>
                 </div>
                 <img
-                  src={movie.img}
-                  alt={movie.title}
+                  src={movie.Poster}
+                  alt={movie.Title}
                   className="w-1/3 h-full object-cover"
                 />
               </div>

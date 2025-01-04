@@ -1,8 +1,22 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {   fetchMovies , Movie } from '../../../Redux/moviesList'
+import type { AppDispatch, RootState } from '../../../Redux/store'
 export default function Search() {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+  const dispatch: AppDispatch = useDispatch()
+    const moviesList = useSelector((state: { movies: Movie[] }) => state.movies);
+  const handleSearch = () => {
+    console.log(searchQuery);
+    if (searchQuery.trim() !== '') {
+      dispatch(fetchMovies(searchQuery));
+    }
+  };
+  useEffect(() => {
+    console.log(333);
+    
+    handleSearch();
+  } , [searchQuery]);
   return (
     <div className="flex justify-center items-center mt-7  flex-col gap-3">
       <h1 className="text-3xl text-[#FAEFD9]"> Search movies</h1>
@@ -13,7 +27,15 @@ export default function Search() {
             className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md pl-3 pr-28 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
             placeholder="Movie Title"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) =>
+              { 
+                setSearchQuery(e.target.value)
+              }
+            }
+            type="text"
+            name="search"
+
+
           />
           <button
             className="absolute top-1 right-1 flex items-center   py-1 px-2.5  text-center text-sm pointer-events-none "
