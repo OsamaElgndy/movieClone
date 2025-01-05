@@ -13,7 +13,19 @@ const initialState: MoviesState = {
 const moviesSlice = createSlice({
   name: 'movies',
   initialState,
-  reducers: {},
+  reducers: {
+    sortData: (state, action) => {
+      state.entities = state.entities.sort((a, b) => {
+        // Handle cases where Year might not be a simple number (e.g. ranges or "N/A")
+        const yearA = parseInt(a.Year.split('–')[0], 10);
+        const yearB = parseInt(b.Year.split('–')[0], 10);
+        return yearA - yearB;
+      });
+    }
+  
+  
+  
+  },
   extraReducers: (builder) => {
     // Use the builder to define additional reducers
     builder.addCase(searchMovies.pending, (state, action) => {
@@ -34,6 +46,6 @@ const moviesSlice = createSlice({
     });
   },
 });
-
-export const { reducer: moviesReducer } = moviesSlice;
+export const { sortData } = moviesSlice.actions;
+export const { reducer: moviesReducer  } = moviesSlice;
 export default moviesReducer;
