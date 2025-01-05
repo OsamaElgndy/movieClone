@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {   fetchMovies , Movie } from '../../../Redux/moviesList'
-import type { AppDispatch, RootState } from '../../../Redux/store'
+import { AppDispatch, RootState } from "../../../app/store";
+import { searchMovies } from "../../../api/api";
 export default function Search() {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const dispatch: AppDispatch = useDispatch()
-    const moviesList = useSelector((state: { movies: Movie[] }) => state.movies);
+
+  const dispatch : AppDispatch = useDispatch()
+  const { entities } = useSelector((state: RootState) => state.searchMoviesSlice)  // Access global state
+
   const handleSearch = () => {
-    console.log(searchQuery);
-    if (searchQuery.trim() !== '') {
-      dispatch(fetchMovies(searchQuery));
+    if (searchQuery.trim()) {
+      dispatch(searchMovies(searchQuery))  // Dispatch the async thunk to fetch movie data
     }
-  };
+  }
+
   useEffect(() => {
-    console.log(333);
-    
-    handleSearch();
-  } , [searchQuery]);
+    dispatch(searchMovies('Batman'))
+  }, [dispatch])
+
+  console.log(entities , "entities in file search movies ");
+  
   return (
     <div className="flex justify-center items-center mt-7  flex-col gap-3">
       <h1 className="text-3xl text-[#FAEFD9]"> Search movies</h1>
@@ -29,13 +32,12 @@ export default function Search() {
             value={searchQuery}
             onChange={(e) =>
               { 
+                handleSearch()
                 setSearchQuery(e.target.value)
               }
             }
             type="text"
             name="search"
-
-
           />
           <button
             className="absolute top-1 right-1 flex items-center   py-1 px-2.5  text-center text-sm pointer-events-none "
@@ -53,7 +55,6 @@ export default function Search() {
                 clip-rule="evenodd"
               />
             </svg>
-          
           </button>
         </div>
       </div>
