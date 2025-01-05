@@ -9,32 +9,7 @@ export default function CardMovies() {
   
 
   const totalPages = 10; // replace with the actual total number of pages
- const movies = [
-   {
-     index: 0,
-     Title: "The Batman",
-     Year: "2022",
-     imdbID: "tt1877830",
-     Type: "movie",
-     Poster: "https://m.media-amazon.com/images/M/MV5BMmU5NGJlMzAtMGNmOC00YjJjLTgyMzUtNjAyYmE4Njg5YWMyXkEyXkFqcGc@._V1_SX300.jpg",
-   },
-   {
-     index: 1,
-     Title: "The Dark Knight",
-     Year: "2008",
-     imdbID: "tt0468569",
-     Type: "movie",
-     Poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg",
-   },
-   {
-     index: 2,
-     Title: "The Dark Knight Rises",
-     Year: "2012",
-     imdbID: "tt1345836",
-     Type: "movie",
-     Poster: "https://m.media-amazon.com/images/M/MV5BMjM4NDI5NzY2NV5BMl5BanBnXkFtZTcwODQ3ODI2Mw@@._V1_SX300.jpg",
-   },
- ];
+ 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };

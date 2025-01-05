@@ -9,5 +9,7 @@ export interface Movie {
 // Define the state structure for movie search
 export  interface MoviesState {
  entities: Movie[]
+ isLoading: boolean; // Add this line
+  error: string | null
 }
 
