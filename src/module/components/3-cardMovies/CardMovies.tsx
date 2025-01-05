@@ -1,15 +1,38 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
-
+import netflix from "../../../assets/netflix.png";
 export default function CardMovies() {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const { entities } = useSelector((state: RootState) => state.searchMoviesSlice)
-  console.log(entities);
-  
+  const [favorites, setFavorites] = useState<string[]>([]); // Declare and initialize favorites
 
-  const totalPages = 10; // replace with the actual total number of pages
- 
+  useEffect(() => {
+    const storedFavorites = localStorage.getItem("favorites");
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites!));
+    }
+  }, []);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const isFavorite = (imdbID: string) => {
+    return favorites.includes(imdbID);
+  };
+const handleFavorite = (imdbID: string) => {
+  if (isFavorite(imdbID)) {
+    const newFavorites = favorites.filter((id) => id !== imdbID);
+    setFavorites(newFavorites);
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
+  } else {
+    const newFavorites = [...favorites, imdbID];
+    setFavorites(newFavorites);
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
+  }
+};
+  const { entities } = useSelector(
+    (state: RootState) => state.searchMoviesSlice
+  );
+  console.log(entities.length, "length of movies");
+
+  const totalPages = entities.length; // 10   replace with the actual total number of pages
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -33,26 +56,71 @@ export default function CardMovies() {
           {entities?.map((movie, index) => (
             <div
               key={index}
-              className="w-[390px] h-[166px] bg-transparent border  border-solid border-[#E0D9D9] rounded-lg shadow-lg overflow-hidden transition-transform transform hover:bg-[#E0D9D9] hover:scale-105 hover:cursor-pointer"
+              className="max-w-md mx-auto bg-tranitions group border text-white border-gray-300 rounded-lg shadow-md overflow-hidden transition duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#FAEFD9]"
             >
-              <div className="flex  ">
-                <div className="flex flex-col justify-center p-4 w-2/3">
-                  <h2 className="text-xl font-semibold text-white">
+              <div className="flex flex-wrap justify-center p-4">
+                <div className="w-full md:w-1/2 xl:w-1/3 p-4">
+                  <img
+                    src={movie.Poster == "N/A" ? netflix : movie.Poster}
+                    alt={movie.Title}
+                    className="w-full h-full object-cover rounded-lg transition duration-300 hover:scale-110 hover:border-2 hover:border-black"
+                  />
+                </div>
+                <div className="w-full md:w-1/2 xl:w-2/3 p-4">
+                  <h2
+                    className="text-2xl font-bold group-hover:text-black transition duration-300 truncate"
+                    style={{ maxWidth: "200px" }}
+                  >
                     {movie.Title}
                   </h2>
-                  <p className="text-sm text-gray-300">{movie.Year}</p>
-                  <p className="text-sm text-gray-300">{movie.imdbID}</p>
+                  <p className="text-lg group-hover:text-black">{movie.Year}</p>
+                  <p className="text-lg group-hover:text-black">
+                    {movie.imdbID}
+                  </p>
                   <div className="flex items-center mt-2">
-                    <span className="text-lg font-bold text-yellow-500">
+                    <span className="text-lg font-bold group-hover:text-black">
                       ⭐ {movie.Type}
                     </span>
                   </div>
                 </div>
-                <img
-                  src={movie.Poster}
-                  alt={movie.Title}
-                  className="w-1/3 h-full object-cover"
-                />
+                <button
+                  className={`bg-transparent hover:bg-blue-500 group-hover:bg-black text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded ${
+                    isFavorite(movie.imdbID) ? "text-red-500 " : "text-blue-500"
+                  }`}
+                  onClick={() => handleFavorite(movie.imdbID)}
+                >
+                  {isFavorite(movie.imdbID) ? (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
           ))}
