@@ -3,98 +3,65 @@ import netflix from "../../../assets/netflix.png";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../app/store";
 import { fetchMovieDetails } from "../../../api/api";
-import { Movie, MovieDetails } from "../../../interface/interface";
+import { MovieDetails } from "../../../interface/interface";
 export default function MovieSearchPage() {
   const dispatch = useDispatch<AppDispatch>();
-const [moviesCards, setMoviesCards] = useState<MovieDetails[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [singleMovie, setSingleMovie] = useState<MovieDetails>({} as MovieDetails);
+
+  const [moviesCards, setMoviesCards] = useState<MovieDetails[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   const { movieDetails } = useSelector(
     (state: RootState) => state.listMoviesSlice
-  ); 
+  );
 
-  
   const isFavorite = (imdbID: string) => {
     return favorites.includes(imdbID);
   };
+
   useEffect(() => {
-  const imdbID = JSON.parse(localStorage.getItem("favorites") || "[]");
- 
-  imdbID.forEach((id: string) => {
-    console.log(id);
-    
-    
-    dispatch(fetchMovieDetails(id)).then((response) => {
-      console.log(response.payload , "dddddddddddddddddd");
-      setMoviesCards([...moviesCards, response.payload]);
-      setIsLoading(false);
-    });
-  })
-  
-}, [dispatch]);
-console.log(moviesCards.length, "moviesCards");
+    const fetchFavorites = async () => {
+      const imdbID = JSON.parse(localStorage.getItem("favorites") || "[]");
+      console.log(imdbID, "imdbID");
 
-  const movie = {
-    Title: "Batman Begins",
-    Year: "2005",
-    Rated: "PG-13",
-    Released: "15 Jun 2005",
-    Runtime: "140 min",
-    Genre: "Action, Drama",
-    Director: "Christopher Nolan",
-    Writer: "Bob Kane, David S. Goyer, Christopher Nolan",
-    Actors: "Christian Bale, Michael Caine, Ken Watanabe",
-    Plot: "After witnessing his parents' death, Bruce learns the art of fighting to confront injustice. When he returns to Gotham as Batman, he must stop a secret society that intends to destroy the city.",
-    Language: "English, Mandarin",
-    Country: "United States, United Kingdom",
-    Awards: "Nominated for 1 Oscar. 15 wins & 79 nominations total",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BODIyMDdhNTgtNDlmOC00MjUxLWE2NDItODA5MTdkNzY3ZTdhXkEyXkFqcGc@._V1_SX300.jpg",
-    Ratings: [
-      {
-        Source: "Internet Movie Database",
-        Value: "8.2/10",
-      },
-      {
-        Source: "Rotten Tomatoes",
-        Value: "85%",
-      },
-      {
-        Source: "Metacritic",
-        Value: "70/100",
-      },
-    ],
-    Metascore: "70",
-    imdbRating: "8.2",
-    imdbVotes: "1,619,232",
-    imdbID: "tt0372784",
-    Type: "movie",
-    DVD: "N/A",
-    BoxOffice: "$206,863,479",
-    Production: "N/A",
-    Website: "N/A",
-    Response: "True",
-  };
+      const promises = imdbID.map((id: string) =>
+        dispatch(fetchMovieDetails(id))
+      );
+
+      const responses = await Promise.all(promises);
+      setMoviesCards(responses.map((response) => response.payload));
+      console.log(
+        responses.map((response) => response.payload),
+        "response.payload ---------------"
+      );
+    };
+
+    fetchFavorites();
+    const cardDetails = localStorage.getItem("imdbID");
+     dispatch(fetchMovieDetails( cardDetails || "")) .then((response) =>{
+     setSingleMovie(response.payload)}
+  )}, [])
 
 
-
-
-
-
-   const handleFavorite = (imdbID: string) => {
+  const handleFavorite = (imdbID: string) => {
     if (isFavorite(imdbID)) {
       const newFavorites = favorites.filter((id) => id !== imdbID);
       setFavorites(newFavorites);
-      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      localStorage.setItem("favorites", JSON.stringify(newFavorites));
     } else {
       const newFavorites = [...favorites, imdbID];
       setFavorites(newFavorites);
-      localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      localStorage.setItem("favorites", JSON.stringify(newFavorites));
     }
   };
-
+  const handleRemoveFromFavorites = (imdbID: string) => {
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+    const newFavorites = favorites.filter((id: string) => id !== imdbID);
+    localStorage.setItem("favorites", JSON.stringify(newFavorites));
+    setMoviesCards(moviesCards.filter((movie) => movie.imdbID !== imdbID));
+  };
+  console.log(singleMovie, "singleMovie");
+  
 
   return (
     <>
@@ -103,59 +70,59 @@ console.log(moviesCards.length, "moviesCards");
           {/* Hero Section with smaller title and poster */}
           <div className="flex flex-col sm:flex-row justify-center lg:gap-28 items-center bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg mb-6">
             <img
-              src={movie.Poster}
-              alt={movie.Title}
+              src={singleMovie.Poster}
+              alt={singleMovie.Title}
               className="w-32 sm:w-48 h-auto rounded-lg shadow-xl transition-transform duration-300 transform hover:scale-105"
             />
             <div className="sm:ml-6 mt-4 sm:mt-0 text-center sm:text-left">
               <h1 className="text-3xl sm:text-4xl font-extrabold text-yellow-400 truncate">
-                {movie.Title}
+                {singleMovie.Title}
               </h1>
-              <p className="text-lg sm:text-xl text-gray-400">{movie.Year}</p>
+              <p className="text-lg sm:text-xl text-gray-400">{singleMovie.Year}</p>
               <div className="mt-2 text-md sm:text-lg">
                 <span className="font-semibold">Rated: </span>
-                {movie.Rated}
+                {singleMovie.Rated}
                 <br />
                 <span className="font-semibold">Released: </span>
-                {movie.Released}
+                {singleMovie.Released}
               </div>
               <div className="mt-2 text-md sm:text-lg">
                 <span className="font-semibold">Runtime: </span>
-                {movie.Runtime}
+                {singleMovie.Runtime}
               </div>
             </div>
           </div>
 
-          {/* Movie Information */}
+          {/* singleMovie Information */}
           <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg mb-6">
             <div className="flex flex-col sm:flex-row sm:justify-between">
               <div className="sm:w-1/2">
                 <p className="font-semibold text-lg">Genre:</p>
-                <p>{movie.Genre}</p>
+                <p>{singleMovie.Genre}</p>
               </div>
               <div className="sm:w-1/2 mt-4 sm:mt-0">
                 <p className="font-semibold text-lg">Language:</p>
-                <p>{movie.Language}</p>
+                <p>{singleMovie.Language}</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row sm:justify-between mt-4">
               <div className="sm:w-1/2">
                 <p className="font-semibold text-lg">Country:</p>
-                <p>{movie.Country}</p>
+                <p>{singleMovie.Country}</p>
               </div>
               <div className="sm:w-1/2 mt-4 sm:mt-0">
                 <p className="font-semibold text-lg">Director:</p>
-                <p>{movie.Director}</p>
+                <p>{singleMovie.Director}</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row sm:justify-between mt-4">
               <div className="sm:w-1/2">
                 <p className="font-semibold text-lg">Writer(s):</p>
-                <p>{movie.Writer}</p>
+                <p>{singleMovie.Writer}</p>
               </div>
               <div className="sm:w-1/2 mt-4 sm:mt-0">
                 <p className="font-semibold text-lg">Actors:</p>
-                <p>{movie.Actors}</p>
+                <p>{singleMovie.Actors}</p>
               </div>
             </div>
           </div>
@@ -163,14 +130,14 @@ console.log(moviesCards.length, "moviesCards");
           {/* Plot */}
           <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg mb-6">
             <p className="font-semibold text-lg">Plot:</p>
-            <p className="text-lg">{movie.Plot}</p>
+            <p className="text-lg">{singleMovie.Plot}</p>
           </div>
 
           {/* Ratings */}
           <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg mb-6">
             <p className="font-semibold text-lg">Ratings:</p>
             <ul className="space-y-2">
-              {movie.Ratings.map((rating, index) => (
+              {singleMovie?.Ratings?.map((rating, index) => (
                 <li key={index} className="text-lg">
                   <strong>{rating.Source}:</strong> {rating.Value}
                 </li>
@@ -183,11 +150,11 @@ console.log(moviesCards.length, "moviesCards");
             <div className="flex flex-col sm:flex-row sm:justify-between">
               <div className="sm:w-1/2">
                 <p className="font-semibold text-lg">Box Office:</p>
-                <p>{movie.BoxOffice}</p>
+                <p>{singleMovie.BoxOffice}</p>
               </div>
               <div className="sm:w-1/2 mt-4 sm:mt-0">
                 <p className="font-semibold text-lg">Awards:</p>
-                <p>{movie.Awards}</p>
+                <p>{singleMovie.Awards}</p>
               </div>
             </div>
           </div>
@@ -197,114 +164,88 @@ console.log(moviesCards.length, "moviesCards");
             <div className="flex flex-col sm:flex-row sm:justify-between">
               <div className="sm:w-1/2">
                 <p className="font-semibold text-lg">Metascore:</p>
-                <p>{movie.Metascore}</p>
+                <p>{singleMovie.Metascore}</p>
               </div>
               <div className="sm:w-1/2 mt-4 sm:mt-0">
                 <p className="font-semibold text-lg">IMDB Rating:</p>
                 <p>
-                  {movie.imdbRating} ({movie.imdbVotes} votes)
+                  {singleMovie?.imdbRating} ({singleMovie.imdbVotes} votes)
                 </p>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div className="flex flex-wrap justify-center items-center md:gap-0 gap-20 bg-gray-900">
       {moviesCards?.map((movie, index) => (
   <div
     key={index}
-    className="max-w-md mx-auto bg-transparent group border text-white border-gray-300 rounded-lg shadow-md overflow-hidden transition duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#FAEFD9]"
+    className="max-w-md mx-auto bg-transparent group border border-gray-300 rounded-lg shadow-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:bg-[#FAEFD9]"
   >
-    <div className="flex flex-wrap justify-center p-4">
-      {/* Movie Poster */}
-      <div className="w-full md:w-1/2 xl:w-1/3 p-4">
-        <img
-          src={movie.Poster === "N/A" ? netflix : movie.Poster}
-          alt={movie.Title}
-          className="w-full h-full object-cover rounded-lg transition duration-300 hover:scale-110 hover:border-2 hover:border-black"
-        />
-      </div>
+    {/* Image Container */}
+    <div className="w-full h-[300px] flex justify-center items-center relative overflow-hidden">
+  <img
+    src={movie.Poster === "N/A" ? netflix : movie.Poster}
+    alt={movie.Title}
+    style={{ maxWidth: "50%", maxHeight: "100%" }}
+    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+  />
+</div>
 
-      {/* Movie Info */}
-      <div className="w-full md:w-1/2 xl:w-2/3 p-4">
-        <h2
-          className="text-2xl font-bold group-hover:text-black transition duration-300 truncate"
-          style={{ maxWidth: "200px" }}
-        >
-          {movie.Title}
-        </h2>
-        <p className="text-lg group-hover:text-black">{`Year: ${movie.Year}`}</p>
-        <p className="text-lg group-hover:text-black">{`Rated: ${movie.Rated}`}</p>
-        <p className="text-lg group-hover:text-black">{`Runtime: ${movie.Runtime}`}</p>
-        <p className="text-lg group-hover:text-black">{`Director: ${movie.Director}`}</p>
-        <p className="text-lg group-hover:text-black">{`Actors: ${movie.Actors}`}</p>
-        <p className="text-lg group-hover:text-black">{`Plot: ${movie.Plot}`}</p>
-        
-        {/* Ratings */}
-        <div className="flex flex-col mt-4">
-          {movie.Ratings?.map((rating, index) => (
-            <div key={index} className="flex items-center">
-              <span className="font-bold">{rating.Source}:</span>
-              <span className="ml-2">{rating.Value}</span>
-            </div>
-          ))}
+    {/* Movie Info */}
+    <div className="flex flex-col p-4">
+      {/* Movie Title */}
+      <h2
+        className="text-2xl font-semibold text-white group-hover:text-black truncate"
+        style={{ maxWidth: "200px" }}
+      >
+        {movie.Title}
+      </h2>
+
+      <div className="mt-2 text-white group-hover:text-black">
+        <p className="text-sm font-medium">Year: {movie.Year}</p>
+        <p className="text-sm font-medium">Rated: {movie.Rated}</p>
+        <p className="text-sm font-medium">Runtime: {movie.Runtime}</p>
+        <p className="text-sm font-medium">Director: {movie.Director}</p>
+        <p className="text-sm font-medium">Actors: {movie.Actors}</p>
+
+        <div className="mt-2">
+          <p className="text-sm font-medium">Plot:</p>
+          <p className="text-sm">{movie.Plot}</p>
         </div>
-        
-        {/* Box Office */}
-        {movie.BoxOffice && (
-          <div className="mt-4">
-            <span className="text-lg font-bold">Box Office:</span>
-            <span className="ml-2">{movie.BoxOffice}</span>
-          </div>
-        )}
-
-        {/* Favorite Button */}
-        <button
-          className="bg-transparent hover:bg-blue-500 group-hover:bg-black text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mt-4"
-          onClick={() => handleFavorite(movie.imdbID)}
-        >
-          {isFavorite(movie.imdbID) ? (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          )}
-        </button>
       </div>
+
+      {/* Ratings Section */}
+      <div className="mt-4 space-y-1 group-hover:text-black">
+        <h3 className="text-lg font-medium">Ratings:</h3>
+        {movie.Ratings?.map((rating, index) => (
+          <div key={index} className="flex items-center text-sm text-white group-hover:text-black">
+            <span className="font-medium">{rating.Source}:</span>
+            <span className="ml-2 text-white">{rating.Value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Box Office Section */}
+      {movie.BoxOffice && (
+        <div className="mt-4">
+          <h3 className="text-lg font-medium">Box Office:</h3>
+          <p className="text-sm">{movie.BoxOffice}</p>
+        </div>
+      )}
+
+      {/* Remove from Favorites Button */}
+      <button
+        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4 transition-colors duration-300"
+        onClick={() => handleRemoveFromFavorites(movie.imdbID)}
+      >
+        Remove from Favorites
+      </button>
     </div>
   </div>
 ))}
 
-       
-
+      </div>
     </>
   );
-
-
-
 }
-

@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import netflix from "../../../assets/netflix.png";
+import { useNavigate } from 'react-router-dom';
 export default function CardMovies() {
-  const [favorites, setFavorites] = useState<string[]>([]); // Declare and initialize favorites
-
+  const [favorites, setFavorites] = useState<string[]>([]); 
+  const navigate = useNavigate();
   useEffect(() => {
     const storedFavorites = localStorage.getItem("favorites");
     if (storedFavorites) {
@@ -15,17 +16,17 @@ export default function CardMovies() {
   const isFavorite = (imdbID: string) => {
     return favorites.includes(imdbID);
   };
-const handleFavorite = (imdbID: string) => {
-  if (isFavorite(imdbID)) {
-    const newFavorites = favorites.filter((id) => id !== imdbID);
-    setFavorites(newFavorites);
-    localStorage.setItem('favorites', JSON.stringify(newFavorites));
-  } else {
-    const newFavorites = [...favorites, imdbID];
-    setFavorites(newFavorites);
-    localStorage.setItem('favorites', JSON.stringify(newFavorites));
-  }
-};
+  const handleFavorite = (imdbID: string) => {
+    if (isFavorite(imdbID)) {
+      const newFavorites = favorites.filter((id) => id !== imdbID);
+      setFavorites(newFavorites);
+      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+    } else {
+      const newFavorites = [...favorites, imdbID];
+      setFavorites(newFavorites);
+      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+    }
+  };
   const { entities } = useSelector(
     (state: RootState) => state.searchMoviesSlice
   );
@@ -82,45 +83,61 @@ const handleFavorite = (imdbID: string) => {
                       ⭐ {movie.Type}
                     </span>
                   </div>
-                </div>
+                </div >
+                <div className="w-full flex sm:gap-5 md:gap-10 justify-center  items-center  ">
+
                 <button
-                  className={`bg-transparent hover:bg-blue-500 group-hover:bg-black text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded ${
-                    isFavorite(movie.imdbID) ? "text-red-500 " : "text-blue-500"
-                  }`}
-                  onClick={() => handleFavorite(movie.imdbID)}
-                >
-                  {isFavorite(movie.imdbID) ? (
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  )}
-                </button>
+  className={`bg-transparent border-2 ${
+    isFavorite(movie.imdbID) ? 'border-red-500 text-red-500' : 'border-blue-500 text-blue-500'
+  } font-semibold py-2 px-6 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-white hover:shadow-lg`}
+  onClick={() => handleFavorite(movie.imdbID)}
+>
+  {isFavorite(movie.imdbID) ? (
+    <svg
+      className="w-6 h-6 inline-block"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
+    </svg>
+  ) : (
+    <svg
+      className="w-6 h-6 inline-block"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
+    </svg>
+  )}
+</button>
+
+{/* View Details Button */}
+<button
+  className="mt-0 bg-gradient-to-r from-red-500 to-red-700 text-white font-bold py-3 px-8 rounded-full  transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:bg-gradient-to-l"
+  onClick={() => {
+    localStorage.setItem("imdbID", movie.imdbID);
+    navigate(`/details`)
+  }
+  }
+>
+  View Details
+</button>
+  </div>
+
               </div>
             </div>
           ))}
