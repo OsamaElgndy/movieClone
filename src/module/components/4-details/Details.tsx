@@ -1,17 +1,40 @@
 import { useEffect, useState } from "react";
 import netflix from "../../../assets/netflix.png";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../app/store";
-import { filterFavorites } from "../../../app/moviesSlice";
+import { AppDispatch, RootState } from "../../../app/store";
+import { fetchMovieDetails } from "../../../api/api";
+import { Movie, MovieDetails } from "../../../interface/interface";
 export default function MovieSearchPage() {
+  const dispatch = useDispatch<AppDispatch>();
+const [moviesCards, setMoviesCards] = useState<MovieDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const { entities } = useSelector(
-    (state: RootState) => state.searchMoviesSlice
-  );
-  const dispatch = useDispatch();
+  const [error, setError] = useState<string | null>(null);
+
+  const { movieDetails } = useSelector(
+    (state: RootState) => state.listMoviesSlice
+  ); 
+
+  
   const isFavorite = (imdbID: string) => {
     return favorites.includes(imdbID);
   };
+  useEffect(() => {
+  const imdbID = JSON.parse(localStorage.getItem("favorites") || "[]");
+ 
+  imdbID.forEach((id: string) => {
+    console.log(id);
+    
+    
+    dispatch(fetchMovieDetails(id)).then((response) => {
+      console.log(response.payload , "dddddddddddddddddd");
+      setMoviesCards([...moviesCards, response.payload]);
+      setIsLoading(false);
+    });
+  })
+  
+}, [dispatch]);
+console.log(moviesCards.length, "moviesCards");
 
   const movie = {
     Title: "Batman Begins",
@@ -55,31 +78,23 @@ export default function MovieSearchPage() {
     Response: "True",
   };
 
-  const handleFavoritelist = () => {
-    dispatch(filterFavorites(""));
-  };
 
-  useEffect(() => {
-    const storedFavorites = localStorage.getItem("favorites");
-    if (storedFavorites) {
-      setFavorites(JSON.parse(storedFavorites!));
-    }
-    console.log(entities, "this entitis rrrrrrrrrrrrrr");
 
-    handleFavoritelist();
-  }, []);
 
-  const handleFavorite = (imdbID: string) => {
+
+
+   const handleFavorite = (imdbID: string) => {
     if (isFavorite(imdbID)) {
       const newFavorites = favorites.filter((id) => id !== imdbID);
       setFavorites(newFavorites);
-      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));
     } else {
       const newFavorites = [...favorites, imdbID];
       setFavorites(newFavorites);
-      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));
     }
   };
+
 
   return (
     <>
@@ -194,76 +209,102 @@ export default function MovieSearchPage() {
           </div>
         </div>
       </div>
+      {moviesCards?.map((movie, index) => (
+  <div
+    key={index}
+    className="max-w-md mx-auto bg-transparent group border text-white border-gray-300 rounded-lg shadow-md overflow-hidden transition duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#FAEFD9]"
+  >
+    <div className="flex flex-wrap justify-center p-4">
+      {/* Movie Poster */}
+      <div className="w-full md:w-1/2 xl:w-1/3 p-4">
+        <img
+          src={movie.Poster === "N/A" ? netflix : movie.Poster}
+          alt={movie.Title}
+          className="w-full h-full object-cover rounded-lg transition duration-300 hover:scale-110 hover:border-2 hover:border-black"
+        />
+      </div>
 
-      {entities?.map((movie, index) => (
-        <div
-          key={index}
-          className="max-w-md mx-auto bg-tranitions group border text-white border-gray-300 rounded-lg shadow-md overflow-hidden transition duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#FAEFD9]"
+      {/* Movie Info */}
+      <div className="w-full md:w-1/2 xl:w-2/3 p-4">
+        <h2
+          className="text-2xl font-bold group-hover:text-black transition duration-300 truncate"
+          style={{ maxWidth: "200px" }}
         >
-          <div className="flex flex-wrap justify-center p-4">
-            <div className="w-full md:w-1/2 xl:w-1/3 p-4">
-              <img
-                src={movie.Poster == "N/A" ? netflix : movie.Poster}
-                alt={movie.Title}
-                className="w-full h-full object-cover rounded-lg transition duration-300 hover:scale-110 hover:border-2 hover:border-black"
-              />
+          {movie.Title}
+        </h2>
+        <p className="text-lg group-hover:text-black">{`Year: ${movie.Year}`}</p>
+        <p className="text-lg group-hover:text-black">{`Rated: ${movie.Rated}`}</p>
+        <p className="text-lg group-hover:text-black">{`Runtime: ${movie.Runtime}`}</p>
+        <p className="text-lg group-hover:text-black">{`Director: ${movie.Director}`}</p>
+        <p className="text-lg group-hover:text-black">{`Actors: ${movie.Actors}`}</p>
+        <p className="text-lg group-hover:text-black">{`Plot: ${movie.Plot}`}</p>
+        
+        {/* Ratings */}
+        <div className="flex flex-col mt-4">
+          {movie.Ratings?.map((rating, index) => (
+            <div key={index} className="flex items-center">
+              <span className="font-bold">{rating.Source}:</span>
+              <span className="ml-2">{rating.Value}</span>
             </div>
-            <div className="w-full md:w-1/2 xl:w-2/3 p-4">
-              <h2
-                className="text-2xl font-bold group-hover:text-black transition duration-300 truncate"
-                style={{ maxWidth: "200px" }}
-              >
-                {movie.Title}
-              </h2>
-              <p className="text-lg group-hover:text-black">{movie.Year}</p>
-              <p className="text-lg group-hover:text-black">{movie.imdbID}</p>
-              <div className="flex items-center mt-2">
-                <span className="text-lg font-bold group-hover:text-black">
-                  ⭐ {movie.Type}
-                </span>
-              </div>
-            </div>
-            <button
-              className={`bg-transparent hover:bg-blue-500 group-hover:bg-black text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded ${
-                isFavorite(movie.imdbID) ? "text-red-500 " : "text-blue-500"
-              }`}
-              onClick={() => handleFavorite(movie.imdbID)}
-            >
-              {isFavorite(movie.imdbID) ? (
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
+          ))}
         </div>
-      ))}
+        
+        {/* Box Office */}
+        {movie.BoxOffice && (
+          <div className="mt-4">
+            <span className="text-lg font-bold">Box Office:</span>
+            <span className="ml-2">{movie.BoxOffice}</span>
+          </div>
+        )}
+
+        {/* Favorite Button */}
+        <button
+          className="bg-transparent hover:bg-blue-500 group-hover:bg-black text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mt-4"
+          onClick={() => handleFavorite(movie.imdbID)}
+        >
+          {isFavorite(movie.imdbID) ? (
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          ) : (
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+))}
+
+       
+
     </>
   );
+
+
+
 }
+

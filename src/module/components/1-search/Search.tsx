@@ -8,7 +8,7 @@ export default function Search() {
   const dispatch: AppDispatch = useDispatch();
   const { entities, isLoading, error } = useSelector(
     (state: RootState) => state.searchMoviesSlice
-  ); // Access global state
+  ); 
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
