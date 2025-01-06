@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import moviesSlice from './moviesSlice';
+import moviesSlice  from './moviesSlice';
+import listMoviesSlice from './listFavoritesSlice';
 export const store = configureStore({
   reducer: {
-    searchMoviesSlice: moviesSlice
+    searchMoviesSlice: moviesSlice,
+    listMoviesSlice: listMoviesSlice
 
   },
 });

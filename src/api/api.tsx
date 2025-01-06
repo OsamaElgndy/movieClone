@@ -18,3 +18,19 @@ export const searchMovies = createAsyncThunk(
    return data.Search
  }
 )
+
+export const fetchMovieDetails = createAsyncThunk(
+  'movies/fetchMovieDetails',
+  async (imdbID: string, thunkAPI) => {
+    const response = await fetch(`https://www.omdbapi.com/?i=${imdbID}&apikey=6f19371e`)
+    const data = await response.json()
+
+    // If the request fails (e.g., no results found)
+    if (data.Response === 'False') {
+      return thunkAPI.rejectWithValue(data.Error)
+    }
+
+    // Return the movie details
+    return data
+  }
+)

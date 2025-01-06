@@ -11,9 +11,14 @@ export  interface MoviesState {
  entities: Movie[]
  isLoading: boolean; // Add this line
   error: string | null
-}
 
-interface MovieDetails {
+}
+export interface MovieDetailsState {
+  movieDetails: Movie[];
+  isLoading: boolean;
+  error: string | null;
+}
+export  interface MovieDetails {
   Title: string;
   Year: string;
   Rated: string;
