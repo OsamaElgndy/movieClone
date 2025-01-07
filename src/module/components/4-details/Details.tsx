@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import netflix from "../../../assets/netflix.png";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../app/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../../app/store";
 import { fetchMovieDetails } from "../../../api/api";
 import { MovieDetails } from "../../../interface/interface";
 
@@ -9,12 +9,7 @@ export default function MovieSearchPage() {
   const dispatch = useDispatch<AppDispatch>();
   const [singleMovie, setSingleMovie] = useState<MovieDetails>({} as MovieDetails);
   const [moviesCards, setMoviesCards] = useState<MovieDetails[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
-
-  const { movieDetails } = useSelector((state: RootState) => state.listMoviesSlice);
-
   useEffect(() => {
-    // Fetch favorites from localStorage and movie details
     const fetchFavorites = async () => {
       const imdbIDs = JSON.parse(localStorage.getItem("favorites") || "[]");
       const promises = imdbIDs.map((id: string) => dispatch(fetchMovieDetails(id)));
@@ -23,8 +18,6 @@ export default function MovieSearchPage() {
     };
 
     fetchFavorites();
-
-    // Fetch details for a single movie based on stored imdbID
     const imdbID = localStorage.getItem("imdbID");
     if (imdbID) {
       dispatch(fetchMovieDetails(imdbID)).then((response) => setSingleMovie(response.payload));

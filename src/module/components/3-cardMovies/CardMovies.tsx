@@ -7,11 +7,8 @@ import { useNavigate } from 'react-router-dom';
 export default function CardMovies() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const navigate = useNavigate();
-
   const { entities } = useSelector((state: RootState) => state.searchMoviesSlice);
-
   const [currentPage, setCurrentPage] = useState<number>(1);
-
   useEffect(() => {
     const storedFavorites = localStorage.getItem("favorites");
     if (storedFavorites) {
@@ -20,12 +17,10 @@ export default function CardMovies() {
   }, []);
 
   const isFavorite = (imdbID: string) => favorites.includes(imdbID);
-
   const toggleFavorite = (imdbID: string) => {
     const updatedFavorites = isFavorite(imdbID)
       ? favorites.filter(id => id !== imdbID)
       : [...favorites, imdbID];
-
     setFavorites(updatedFavorites);
     localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
   };
