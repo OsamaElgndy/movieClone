@@ -1,20 +1,13 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-
-
+import { urlApi } from "../interface/interface";
 export const searchMovies = createAsyncThunk(
  'movies/searchMovies',
  async (searchTerm: string, thunkAPI) => {
-   const response = await fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=6f19371e`)
-   
+   const response = await fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=${urlApi}`)
    const data = await response.json()
-   console.log(data , "data I MA HERE IN FILE FEATCH DATA");
-
-   // If the request fails (e.g., no results found)
    if (data.Response === 'False') {
      return thunkAPI.rejectWithValue(data.Error)
    }
-
-   // Return the list of movies
    return data.Search
  }
 )
@@ -22,15 +15,11 @@ export const searchMovies = createAsyncThunk(
 export const fetchMovieDetails = createAsyncThunk(
   'movies/fetchMovieDetails',
   async (imdbID: string, thunkAPI) => {
-    const response = await fetch(`https://www.omdbapi.com/?i=${imdbID}&apikey=6f19371e`)
+    const response = await fetch(`https://www.omdbapi.com/?i=${imdbID}&apikey=${urlApi}`)
     const data = await response.json()
-
-    // If the request fails (e.g., no results found)
     if (data.Response === 'False') {
       return thunkAPI.rejectWithValue(data.Error)
     }
-
-    // Return the movie details
     return data
   }
 )

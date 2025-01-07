@@ -1,3 +1,6 @@
+export const urlApi = import.meta.env.VITE_REACT_APP_API_KEY;
+
+
 export interface Movie {
  Title: string
  Year: string
